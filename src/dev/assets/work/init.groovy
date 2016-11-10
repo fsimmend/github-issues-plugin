@@ -34,7 +34,3 @@ GitHubPluginConfig pluginConfig = GitHubPlugin.configuration()
 GitHubServerConfig serverConfig = new GitHubServerConfig('github-oauth-token')
 pluginConfig.setConfigs([serverConfig])
 pluginConfig.save()
-
-if (Jenkins.instance.getItem('test') == null) {
-  Jenkins.instance.createProjectFromXML('test', new File(System.getProperty('JENKINS_HOME') + '/testjob.xml').newInputStream())
-}

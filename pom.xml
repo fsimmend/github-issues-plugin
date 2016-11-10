@@ -84,6 +84,9 @@
           <missing>${basedir}/work</missing>
         </file>
       </activation>
+      <properties>
+        <github.test.project>https://github.com/fsimmend/github-issues-plugin/</github.test.project>
+      </properties>
       <build>
         <plugins>
           <plugin>

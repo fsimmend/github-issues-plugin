@@ -19,6 +19,7 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -37,6 +38,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
     private String issueTitle;
     private String issueBody;
     private String issueLabel;
+    private String issueRepo;
 
     /**
      * Initialises the {@link GitHubIssueNotifier} instance.
@@ -46,10 +48,11 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      * @param issueLabel the issue label
      */
     @DataBoundConstructor
-    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel) {
+    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo) {
         this.issueTitle = issueTitle;
         this.issueBody = issueBody;
         this.issueLabel = issueLabel;
+        this.issueRepo = issueRepo;
     }
 
     @Override
@@ -68,8 +71,14 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      * @return The GitHub repository
      */
     public GHRepository getRepoForJob(Job<?, ?> job) {
-        GithubProjectProperty foo = job.getProperty(GithubProjectProperty.class);
-        GitHubRepositoryName repoName = GitHubRepositoryName.create(foo.getProjectUrlStr());
+        final String repoUrl;
+        if (StringUtils.isNotBlank(this.issueRepo)) {
+            repoUrl = this.issueRepo;
+        } else {
+            GithubProjectProperty foo = job.getProperty(GithubProjectProperty.class);
+            repoUrl = foo.getProjectUrlStr();
+        }
+        GitHubRepositoryName repoName = GitHubRepositoryName.create(repoUrl);
         return repoName == null ? null : repoName.resolveOne();
     }
 

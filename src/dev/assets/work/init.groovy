@@ -11,7 +11,7 @@ import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
 // configure JENKINS_URL
 JenkinsLocationConfiguration jenkinsLocationConfiguration = JenkinsLocationConfiguration.get()
 jenkinsLocationConfiguration.adminAddress = 'test@localhost'
-jenkinsLocationConfiguration.setUrl("https://${InetAddress.localHost.hostName}")
+jenkinsLocationConfiguration.setUrl("https://localhost:8080/jenkins")
 jenkinsLocationConfiguration.save()
 
 // configure credentials

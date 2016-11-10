@@ -89,12 +89,11 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         @Nonnull Launcher launcher,
         @Nonnull TaskListener listener
     ) throws InterruptedException, IOException {
-        Job<?, ?> job = run.getParent();
         PrintStream logger = listener.getLogger();
 
         Result result = run.getResult();
-        GitHubIssueJobProperty property = GitHubIssueJobProperty.getOrCreateForJob(job);
-        boolean hasIssue = property.getIssueNumber() != 0;
+        final GitHubIssueAction previousGitHubIssueAction = run.getPreviousBuild().getAction(GitHubIssueAction.class);
+        boolean hasIssue = previousGitHubIssueAction != null;
 
         // Return early without initialising the GitHub API client, if we can avoid it
         if (result == Result.SUCCESS && !hasIssue) {
@@ -104,8 +103,9 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             // Issue was already created for a previous failure
             logger.format(
                 "GitHub Issue Notifier: Build is still failing and issue #%s already exists. Not sending anything to GitHub issues%n",
-                property.getIssueNumber()
+                    previousGitHubIssueAction.getIssueNumber()
             );
+            run.addAction(previousGitHubIssueAction);
             return;
         }
 
@@ -119,15 +119,13 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         if (result == Result.FAILURE || result == Result.UNSTABLE) {
             GHIssue issue = IssueCreator.createIssue(run, this, repo, listener, workspace);
             logger.format("GitHub Issue Notifier: Build has started failing, filed GitHub issue #%s%n", issue.getNumber());
-            property.setIssueNumber(issue.getNumber());
-            job.save();
+            run.addAction(new GitHubIssueAction(issue.getNumber()));
         } else if (result == Result.SUCCESS) {
-            logger.format("GitHub Issue Notifier: Build was fixed, closing GitHub issue #%s%n", property.getIssueNumber());
-            GHIssue issue = repo.getIssue(property.getIssueNumber());
+            final int issueNumber = previousGitHubIssueAction.getIssueNumber();
+            logger.format("GitHub Issue Notifier: Build was fixed, closing GitHub issue #%s%n", issueNumber);
+            GHIssue issue = repo.getIssue(issueNumber);
             issue.comment("Build was fixed!");
             issue.close();
-            property.setIssueNumber(0);
-            job.save();
         }
     }
 

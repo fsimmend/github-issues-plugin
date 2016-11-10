@@ -93,18 +93,31 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         PrintStream logger = listener.getLogger();
 
         Result result = run.getResult();
-        final GitHubIssueAction previousGitHubIssueAction = run.getPreviousBuild().getAction(GitHubIssueAction.class);
-        boolean hasIssue = previousGitHubIssueAction != null;
+
+        final GitHubIssueAction previousGitHubIssueAction;
+        final Build previousBuild = (Build) run.getPreviousBuild();
+        if (previousBuild == null) {
+            previousGitHubIssueAction = null;
+        } else {
+            previousGitHubIssueAction = previousBuild.getAction(GitHubIssueAction.class);
+        }
+
+        final Integer existingIssueNumber;
+        if (previousGitHubIssueAction == null) {
+            existingIssueNumber = null;
+        } else {
+            existingIssueNumber = previousGitHubIssueAction.getIssueNumber();
+        }
 
         // Return early without initialising the GitHub API client, if we can avoid it
-        if (result == Result.SUCCESS && !hasIssue) {
+        if (result == Result.SUCCESS && existingIssueNumber==null) {
             // The best case - Successful build with no open issue :D
             return;
-        } else if ((result == Result.FAILURE || result == Result.UNSTABLE) && hasIssue) {
+        } else if ((result == Result.FAILURE || result == Result.UNSTABLE) && existingIssueNumber!=null) {
             // Issue was already created for a previous failure
             logger.format(
                 "GitHub Issue Notifier: Build is still failing and issue #%s already exists. Not sending anything to GitHub issues%n",
-                    previousGitHubIssueAction.getIssueNumber()
+                    existingIssueNumber
             );
             run.addAction(previousGitHubIssueAction);
             return;
@@ -122,7 +135,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             logger.format("GitHub Issue Notifier: Build has started failing, filed GitHub issue #%s%n", issue.getNumber());
             run.addAction(new GitHubIssueAction(issue.getNumber()));
         } else if (result == Result.SUCCESS) {
-            final int issueNumber = previousGitHubIssueAction.getIssueNumber();
+            final int issueNumber = existingIssueNumber;
             logger.format("GitHub Issue Notifier: Build was fixed, closing GitHub issue #%s%n", issueNumber);
             GHIssue issue = repo.getIssue(issueNumber);
             issue.comment("Build was fixed!");

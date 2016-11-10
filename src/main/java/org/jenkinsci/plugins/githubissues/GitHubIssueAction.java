@@ -30,11 +30,12 @@ public class GitHubIssueAction implements BuildBadgeAction {
 
     @Override
     public String getIconFileName() {
-        return "/plugin/github-issues/issueLogo.png";
+        return "/plugin/github-issues/img/issueLogo.png";
     }
 
     @Override
     public String getUrlName() {
+        // TODO Add GitHub link
         return XSSApi.asValidHref("http://www.coremedia.com");
     }
 

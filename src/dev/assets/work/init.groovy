@@ -1,6 +1,7 @@
 import com.cloudbees.plugins.credentials.CredentialsScope
 import com.cloudbees.plugins.credentials.domains.Domain
 import hudson.util.Secret
+import jenkins.model.Jenkins
 import jenkins.model.JenkinsLocationConfiguration
 import org.jenkinsci.plugins.github.GitHubPlugin
 import org.jenkinsci.plugins.github.config.GitHubPluginConfig
@@ -23,7 +24,7 @@ if (store.getCredentials(domain).find { it.id == credentialsID } == null) {
           CredentialsScope.GLOBAL,
           credentialsID,
           "github personal access token" as String,
-          Secret.decrypt(System.getenv('GITHUB_OAUTH_TOKEN') ?: 'DUMMY')
+          Secret.fromString(System.getenv('GITHUB_OAUTH_TOKEN') ?: 'DUMMY')
   )
   store.addCredentials(domain, secretText)
 }
@@ -34,6 +35,6 @@ GitHubServerConfig serverConfig = new GitHubServerConfig('github-oauth-token')
 pluginConfig.setConfigs([serverConfig])
 pluginConfig.save()
 
-if (jenkins.model.Jenkins.instance.getItem('test') == null) {
-  jenkins.model.Jenkins.instance.createProjectFromXML(new File(System.getenv('JENKINS_HOME') + 'testjob.xml'))
+if (Jenkins.instance.getItem('test') == null) {
+  Jenkins.instance.createProjectFromXML('test', new File(System.getProperty('JENKINS_HOME') + '/testjob.xml').newInputStream())
 }

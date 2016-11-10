@@ -46,6 +46,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      * @param issueTitle the issue title
      * @param issueBody  the issue body
      * @param issueLabel the issue label
+     * @param issueRepo the issue repo
      */
     @DataBoundConstructor
     public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo) {

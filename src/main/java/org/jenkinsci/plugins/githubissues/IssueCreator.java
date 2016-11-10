@@ -11,6 +11,7 @@ package org.jenkinsci.plugins.githubissues;
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueBuilder;
@@ -57,24 +58,40 @@ public abstract class IssueCreator {
     /**
      * Creates a GitHub issue for a failing build
      * @param run Build that failed
-     * @param descriptor Descriptor for GitHubIssueNotifier
+     * @param jobConfig the job config of the GitHubIssueNotifier
      * @param repo Repository to create the issue in
      * @param listener Build listener
      * @param workspace Build workspace
      * @return The issue that was created
-     * @throws IOException
+     * @throws IOException when an unexpected problem occurs
      */
     public static GHIssue createIssue(
         Run<?, ?> run,
-        GitHubIssueNotifier.DescriptorImpl descriptor,
+        GitHubIssueNotifier jobConfig,
         GHRepository repo,
         TaskListener listener,
         FilePath workspace
     ) throws IOException {
-        GHIssueBuilder issue = repo.createIssue(formatText(descriptor.getIssueTitle(), run, listener, workspace))
-            .body(formatText(descriptor.getIssueBody(), run, listener, workspace));
+        final GitHubIssueNotifier.DescriptorImpl globalConfig = jobConfig.getDescriptor();
 
-        String issueLabel = descriptor.getIssueLabel();
+        String issueTitle = jobConfig.getIssueTitle();
+        if (StringUtils.isBlank(issueTitle)) {
+            issueTitle = globalConfig.getIssueTitle();
+        }
+
+        String issueBody = jobConfig.getIssueBody();
+        if (StringUtils.isBlank(issueBody)) {
+            issueBody = globalConfig.getIssueBody();
+        }
+
+        String issueLabel = jobConfig.getIssueLabel();
+        if (StringUtils.isBlank(issueLabel)) {
+            issueLabel = globalConfig.getIssueLabel();
+        }
+
+        GHIssueBuilder issue = repo.createIssue(formatText(issueTitle, run, listener, workspace))
+            .body(formatText(issueBody, run, listener, workspace));
+
         if (issueLabel != null && !issueLabel.isEmpty()) {
             issue = issue.label(issueLabel);
         }

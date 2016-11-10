@@ -34,8 +34,22 @@ import java.io.PrintStream;
  */
 public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
 
+    private String issueTitle;
+    private String issueBody;
+    private String issueLabel;
+
+    /**
+     * Initialises the {@link GitHubIssueNotifier} instance.
+     *
+     * @param issueTitle the issue title
+     * @param issueBody  the issue body
+     * @param issueLabel the issue label
+     */
     @DataBoundConstructor
-    public GitHubIssueNotifier() {
+    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel) {
+        this.issueTitle = issueTitle;
+        this.issueBody = issueBody;
+        this.issueLabel = issueLabel;
     }
 
     @Override
@@ -94,7 +108,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         }
 
         if (result == Result.FAILURE || result == Result.UNSTABLE) {
-            GHIssue issue = IssueCreator.createIssue(run, getDescriptor(), repo, listener, workspace);
+            GHIssue issue = IssueCreator.createIssue(run, this, repo, listener, workspace);
             logger.format("GitHub Issue Notifier: Build has started failing, filed GitHub issue #%s%n", issue.getNumber());
             property.setIssueNumber(issue.getNumber());
             job.save();
@@ -106,6 +120,33 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             property.setIssueNumber(0);
             job.save();
         }
+    }
+
+    /**
+     * Returns the issue title.
+     *
+     * @return the issue title
+     */
+    public String getIssueTitle() {
+        return issueTitle;
+    }
+
+    /**
+     * Returns the issue body.
+     *
+     * @return the issue body
+     */
+    public String getIssueBody() {
+        return issueBody;
+    }
+
+    /**
+     * Returns the issue label.
+     *
+     * @return the issue label
+     */
+    public String getIssueLabel() {
+        return issueLabel;
     }
 
     @Extension

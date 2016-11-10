@@ -9,6 +9,7 @@
 package org.jenkinsci.plugins.githubissues;
 
 import hudson.model.Action;
+import org.jenkinsci.plugins.github.util.XSSApi;
 
 public class GitHubIssueAction implements Action {
 
@@ -18,22 +19,24 @@ public class GitHubIssueAction implements Action {
         this.issueNumber = issueNumber;
     }
 
-    @Override
-    public String getIconFileName() {
-        return null;
-    }
 
     @Override
     public String getDisplayName() {
-        return null;
+        return "GitHub Issue";
+    }
+
+    @Override
+    public String getIconFileName() {
+        return "/plugin/github-issues/issueLogo.png";
     }
 
     @Override
     public String getUrlName() {
-        return null;
+        return XSSApi.asValidHref("http://www.coremedia.com");
     }
 
     public int getIssueNumber() {
         return issueNumber;
     }
+
 }

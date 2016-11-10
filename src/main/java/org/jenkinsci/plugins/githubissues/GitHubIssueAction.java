@@ -8,15 +8,18 @@
 
 package org.jenkinsci.plugins.githubissues;
 
-import hudson.model.Action;
+import hudson.model.BuildBadgeAction;
+import hudson.model.Result;
 import org.jenkinsci.plugins.github.util.XSSApi;
 
-public class GitHubIssueAction implements Action {
+public class GitHubIssueAction implements BuildBadgeAction {
 
-    private final int issueNumber;
+    private int issueNumber;
+    private Result buildResult;
 
-    public GitHubIssueAction(int issueNumber) {
+    public GitHubIssueAction(int issueNumber, Result buildResult) {
         this.issueNumber = issueNumber;
+        this.buildResult = buildResult;
     }
 
 
@@ -39,4 +42,15 @@ public class GitHubIssueAction implements Action {
         return issueNumber;
     }
 
+    public boolean isFailedBuild() {
+        return  buildResult.equals(Result.FAILURE);
+    }
+
+    public boolean isUnstableBuild() {
+        return  buildResult.equals(Result.UNSTABLE);
+    }
+
+    public void setBuildResult(Result buildResult) {
+        this.buildResult = buildResult;
+    }
 }

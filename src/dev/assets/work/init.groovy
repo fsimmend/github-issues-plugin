@@ -1,7 +1,6 @@
 import com.cloudbees.plugins.credentials.CredentialsScope
 import com.cloudbees.plugins.credentials.domains.Domain
 import hudson.util.Secret
-import jenkins.model.Jenkins
 import jenkins.model.JenkinsLocationConfiguration
 import org.jenkinsci.plugins.github.GitHubPlugin
 import org.jenkinsci.plugins.github.config.GitHubPluginConfig

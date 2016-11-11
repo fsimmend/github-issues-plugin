@@ -34,7 +34,7 @@ public abstract class IssueCreator {
      * @param listener Build listener
      * @param workspace Build workspace
      * @return Formatted text
-     * @throws IOException
+     * @throws IOException when an unexpected problem occurs
      */
     public static String formatText(
         String text,

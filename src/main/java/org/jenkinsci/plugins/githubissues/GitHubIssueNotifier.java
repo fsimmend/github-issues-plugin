@@ -204,6 +204,8 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
 
         /**
          * Title of the issue to create on GitHub
+         *
+         * @return issueTitle
          */
         public String getIssueTitle() {
             return issueTitle;
@@ -211,6 +213,8 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
 
         /**
          * Body of the issue to create on GitHub
+         *
+         * @return issueBody
          */
         public String getIssueBody() {
             return issueBody;
@@ -218,6 +222,8 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
 
         /**
          * Label to use for the issues created on GitHub.
+         *
+         * @return issueLabel
          */
         public String getIssueLabel() {
             return issueLabel;

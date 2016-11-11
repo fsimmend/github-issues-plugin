@@ -19,6 +19,7 @@ import org.kohsuke.github.GHRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Handles creating GitHub issues.
@@ -89,12 +90,14 @@ public abstract class IssueCreator {
             issueLabel = globalConfig.getIssueLabel();
         }
 
-        GHIssueBuilder issue = repo.createIssue(formatText(issueTitle, run, listener, workspace))
+        GHIssueBuilder issueBuilder = repo.createIssue(formatText(issueTitle, run, listener, workspace))
             .body(formatText(issueBody, run, listener, workspace));
 
+        GHIssue issue = issueBuilder.create();
+
         if (issueLabel != null && !issueLabel.isEmpty()) {
-            issue = issue.label(issueLabel);
+            issue.setLabels(issueLabel.split(",| "));
         }
-        return issue.create();
+        return issue;
     }
 }

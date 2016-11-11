@@ -40,7 +40,8 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
     private String issueBody;
     private String issueLabel;
     private String issueRepo;
-    private boolean reopenIssue;
+    private boolean reopenIssue = true;
+    private final boolean appendIssue = true;
 
     /**
      * Initialises the {@link GitHubIssueNotifier} instance.
@@ -51,12 +52,13 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      * @param issueRepo the issue repo
      */
     @DataBoundConstructor
-    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo, boolean reopenIssue) {
+    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo, boolean reopenIssue, boolean appendIssue) {
         this.issueTitle = issueTitle;
         this.issueBody = issueBody;
         this.issueLabel = issueLabel;
         this.issueRepo = issueRepo;
         this.reopenIssue = reopenIssue;
+        this.appendIssue = appendIssue;
     }
 
     @Override
@@ -133,11 +135,13 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
                 if (issue.getState().equals(GHIssueState.CLOSED) && this.reopenIssue) {
                     issue.reopen();
                 }
-                String issueBody = this.getIssueBody();
-                if (StringUtils.isBlank(issueBody)) {
-                    issueBody = this.getDescriptor().getIssueBody();
+                if (this.appendIssue) {
+                    String issueBody = this.getIssueBody();
+                    if (StringUtils.isBlank(issueBody)) {
+                        issueBody = this.getDescriptor().getIssueBody();
+                    }
+                    issue.comment(IssueCreator.formatText(issueBody, run, listener, workspace));
                 }
-                issue.comment(IssueCreator.formatText(issueBody, run, listener, workspace));
             }
             previousGitHubIssueAction.setBuildResult(result);
             run.addAction(previousGitHubIssueAction);
@@ -185,6 +189,10 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
 
     public boolean isReopenIssue() {
         return reopenIssue;
+    }
+
+    public boolean isAppendIssue() {
+        return appendIssue;
     }
 
     @Extension

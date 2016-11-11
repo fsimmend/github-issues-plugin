@@ -1,10 +1,14 @@
 <j:jelly xmlns:j="jelly:core">
     <j:choose>
         <j:when test="${it.isFailedBuild()}">
-            <img width="16" height="16" title="See GitHub Issue ${it.issueNumber}" src="${rootURL}/plugin/github-issues/img/github-red-small.png"/>
+            <a href="${it.issueUrl}" target="_blank">
+                <img width="16" height="16" title="See GitHub Issue ${it.issueNumber}" src="${rootURL}/plugin/github-issues/img/github-red-small.png"/>
+            </a>
         </j:when>
         <j:when test="${it.isUnstableBuild()}">
-            <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/github-issues/img/github-gray-small.png"/>
+            <a href="${it.issueUrl}" target="_blank">
+                <img width="16" height="16" title="${it.issueNumber}" src="${rootURL}/plugin/github-issues/img/github-gray-small.png"/>
+            </a>
         </j:when>
         <j:otherwise>
             <!-- Don't display any badge -->

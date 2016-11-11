@@ -11,17 +11,19 @@ package org.jenkinsci.plugins.githubissues;
 import hudson.model.BuildBadgeAction;
 import hudson.model.Result;
 import org.jenkinsci.plugins.github.util.XSSApi;
+import org.kohsuke.github.GHIssue;
 
 public class GitHubIssueAction implements BuildBadgeAction {
 
     private int issueNumber;
+    private final String issueUrl;
     private Result buildResult;
 
-    public GitHubIssueAction(int issueNumber, Result buildResult) {
-        this.issueNumber = issueNumber;
+    public GitHubIssueAction(GHIssue issue, Result buildResult) {
+        this.issueNumber = issue.getNumber();
+        this.issueUrl = XSSApi.asValidHref(issue.getHtmlUrl().toString());
         this.buildResult = buildResult;
     }
-
 
     @Override
     public String getDisplayName() {
@@ -35,8 +37,7 @@ public class GitHubIssueAction implements BuildBadgeAction {
 
     @Override
     public String getUrlName() {
-        // TODO Add GitHub link
-        return XSSApi.asValidHref("http://www.coremedia.com");
+        return XSSApi.asValidHref(issueUrl);
     }
 
     public int getIssueNumber() {
@@ -53,5 +54,9 @@ public class GitHubIssueAction implements BuildBadgeAction {
 
     public void setBuildResult(Result buildResult) {
         this.buildResult = buildResult;
+    }
+
+    public String getIssueUrl() {
+        return issueUrl;
     }
 }

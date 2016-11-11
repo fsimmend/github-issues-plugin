@@ -134,7 +134,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         if (result == Result.FAILURE || result == Result.UNSTABLE) {
             GHIssue issue = IssueCreator.createIssue(run, this, repo, listener, workspace);
             logger.format("GitHub Issue Notifier: Build has started failing, filed GitHub issue #%s%n", issue.getNumber());
-            run.addAction(new GitHubIssueAction(issue.getNumber(), result));
+            run.addAction(new GitHubIssueAction(issue, result));
         } else if (result == Result.SUCCESS) {
             final int issueNumber = existingIssueNumber;
             logger.format("GitHub Issue Notifier: Build was fixed, closing GitHub issue #%s%n", issueNumber);

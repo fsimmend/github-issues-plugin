@@ -10,11 +10,5 @@
         <f:entry title="Issue Label" field="issueLabel">
             <f:textbox />
         </f:entry>
-        <f:entry title="ReOpen issue" field="reopenIssue">
-             <f:checkbox/>
-        </f:entry>
-        <f:entry title="Append Failures on next job to existing issue" field="appendIssue">
-             <f:checkbox/>
-        </f:entry>
     </f:section>
 </j:jelly>

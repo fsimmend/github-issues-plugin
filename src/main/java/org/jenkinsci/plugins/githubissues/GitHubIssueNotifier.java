@@ -50,6 +50,8 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      * @param issueBody  the issue body
      * @param issueLabel the issue label
      * @param issueRepo the issue repo
+     * @param reopenIssue reopen the issue
+     * @param appendIssue append to existing issue
      */
     @DataBoundConstructor
     public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo, boolean reopenIssue, boolean appendIssue) {

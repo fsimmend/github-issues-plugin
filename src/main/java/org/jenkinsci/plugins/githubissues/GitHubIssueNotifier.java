@@ -21,6 +21,7 @@ import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -39,6 +40,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
     private String issueBody;
     private String issueLabel;
     private String issueRepo;
+    private boolean reopenIssue;
 
     /**
      * Initialises the {@link GitHubIssueNotifier} instance.
@@ -49,11 +51,12 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      * @param issueRepo the issue repo
      */
     @DataBoundConstructor
-    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo) {
+    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo, boolean reopenIssue) {
         this.issueTitle = issueTitle;
         this.issueBody = issueBody;
         this.issueLabel = issueLabel;
         this.issueRepo = issueRepo;
+        this.reopenIssue = reopenIssue;
     }
 
     @Override
@@ -127,6 +130,9 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             );
             final GHIssue issue = repo.getIssue(existingIssueNumber);
             if (issue != null) {
+                if (issue.getState().equals(GHIssueState.CLOSED) && this.reopenIssue) {
+                    issue.reopen();
+                }
                 String issueBody = this.getIssueBody();
                 if (StringUtils.isBlank(issueBody)) {
                     issueBody = this.getDescriptor().getIssueBody();
@@ -175,6 +181,10 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      */
     public String getIssueLabel() {
         return issueLabel;
+    }
+
+    public boolean isReopenIssue() {
+        return reopenIssue;
     }
 
     @Extension

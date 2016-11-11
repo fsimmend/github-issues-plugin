@@ -34,3 +34,11 @@ If specified, this Label will be applied. Optional.
 __Issue Repository__
 
 Repo to use for the GitHub issues to create when builds start to fail. If not defined here, the configured github project url is used.
+
+__ReOpen Issue__
+
+Check this to change the behavior when a job fails a second time and previously created issue exists, if checked, this issue get reopened instead of creating a new one.
+
+__Append Issue__
+
+If checked, and a job is continuously failing, every additional failure adds a new comment.

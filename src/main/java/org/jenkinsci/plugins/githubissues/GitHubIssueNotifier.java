@@ -21,7 +21,6 @@ import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.github.GHIssue;
-import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -134,9 +133,6 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             );
             final GHIssue issue = repo.getIssue(existingIssueNumber);
             if (issue != null) {
-                if (issue.getState().equals(GHIssueState.CLOSED) && this.reopenIssue) {
-                    issue.reopen();
-                }
                 if (this.appendIssue) {
                     String issueBody = this.getIssueBody();
                     if (StringUtils.isBlank(issueBody)) {
@@ -151,7 +147,17 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         }
 
         if (result == Result.FAILURE || result == Result.UNSTABLE) {
-            GHIssue issue = IssueCreator.createIssue(run, this, repo, listener, workspace);
+            GHIssue issue = null;
+            if (this.reopenIssue) {
+                final Integer latestIssueNumber = this.getLatestIssueNumber(previousBuild);
+                if (latestIssueNumber != null) {
+                    issue = repo.getIssue(latestIssueNumber);
+                    issue.reopen();
+                }
+            }
+            if (issue == null) {
+                issue = IssueCreator.createIssue(run, this, repo, listener, workspace);
+            }
             logger.format("GitHub Issue Notifier: Build has started failing, filed GitHub issue #%s%n", issue.getNumber());
             run.addAction(new GitHubIssueAction(issue, result));
         } else if (result == Result.SUCCESS) {
@@ -160,6 +166,18 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             issue.comment("Build was fixed!");
             issue.close();
         }
+    }
+
+    private Integer getLatestIssueNumber(Build previousBuild) {
+        if (previousBuild != null) {
+            GitHubIssueAction previousGitHubIssueAction = previousBuild.getAction(GitHubIssueAction.class);
+            if (previousGitHubIssueAction != null) {
+                return previousGitHubIssueAction.getIssueNumber();
+            } else {
+                return this.getLatestIssueNumber((Build) previousBuild.getPreviousBuild());
+            }
+        }
+        return null;
     }
 
     /**

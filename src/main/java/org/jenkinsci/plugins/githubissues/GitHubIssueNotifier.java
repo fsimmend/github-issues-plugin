@@ -109,6 +109,12 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             existingIssueNumber = previousGitHubIssueAction.getIssueNumber();
         }
 
+        GHRepository repo = getRepoForJob(run.getParent());
+        if (repo == null) {
+            logger.println("WARNING: No GitHub config available for this job, GitHub Issue Notifier will not run!");
+            return;
+        }
+
         // Return early without initialising the GitHub API client, if we can avoid it
         if (result == Result.SUCCESS && existingIssueNumber==null) {
             // The best case - Successful build with no open issue :D
@@ -119,15 +125,16 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
                 "GitHub Issue Notifier: Build is still failing and issue #%s already exists. Not sending anything to GitHub issues%n",
                     existingIssueNumber
             );
+            final GHIssue issue = repo.getIssue(existingIssueNumber);
+            if (issue != null) {
+                String issueBody = this.getIssueBody();
+                if (StringUtils.isBlank(issueBody)) {
+                    issueBody = this.getDescriptor().getIssueBody();
+                }
+                issue.comment(IssueCreator.formatText(issueBody, run, listener, workspace));
+            }
             previousGitHubIssueAction.setBuildResult(result);
             run.addAction(previousGitHubIssueAction);
-            return;
-        }
-
-        // If we got here, we need to grab the repo to create an issue (or close an existing issue)
-        GHRepository repo = getRepoForJob(run.getParent());
-        if (repo == null) {
-            logger.println("WARNING: No GitHub config available for this job, GitHub Issue Notifier will not run!");
             return;
         }
 

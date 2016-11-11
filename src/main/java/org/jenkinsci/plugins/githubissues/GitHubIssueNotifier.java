@@ -41,7 +41,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
     private String issueLabel;
     private String issueRepo;
     private boolean reopenIssue = true;
-    private final boolean appendIssue = true;
+    private boolean appendIssue = true;
 
     /**
      * Initialises the {@link GitHubIssueNotifier} instance.

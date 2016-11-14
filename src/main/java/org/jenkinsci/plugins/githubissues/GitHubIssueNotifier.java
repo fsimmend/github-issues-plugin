@@ -39,8 +39,8 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
     private String issueBody;
     private String issueLabel;
     private String issueRepo;
-    private boolean reopenIssue = true;
-    private boolean appendIssue = true;
+    private boolean issueReopen = true;
+    private boolean issueAppend = true;
 
     /**
      * Initialises the {@link GitHubIssueNotifier} instance.
@@ -49,17 +49,17 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
      * @param issueBody  the issue body
      * @param issueLabel the issue label
      * @param issueRepo the issue repo
-     * @param reopenIssue reopen the issue
-     * @param appendIssue append to existing issue
+     * @param issueReopen reopen the issue
+     * @param issueAppend append to existing issue
      */
     @DataBoundConstructor
-    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo, boolean reopenIssue, boolean appendIssue) {
+    public GitHubIssueNotifier(String issueTitle, String issueBody, String issueLabel, String issueRepo, boolean issueReopen, boolean issueAppend) {
         this.issueTitle = issueTitle;
         this.issueBody = issueBody;
         this.issueLabel = issueLabel;
         this.issueRepo = issueRepo;
-        this.reopenIssue = reopenIssue;
-        this.appendIssue = appendIssue;
+        this.issueReopen = issueReopen;
+        this.issueAppend = issueAppend;
     }
 
     @Override
@@ -133,7 +133,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
             );
             final GHIssue issue = repo.getIssue(existingIssueNumber);
             if (issue != null) {
-                if (this.appendIssue) {
+                if (this.issueAppend) {
                     String issueBody = this.getIssueBody();
                     if (StringUtils.isBlank(issueBody)) {
                         issueBody = this.getDescriptor().getIssueBody();
@@ -148,7 +148,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
 
         if (result == Result.FAILURE || result == Result.UNSTABLE) {
             GHIssue issue = null;
-            if (this.reopenIssue) {
+            if (this.issueReopen) {
                 final Integer latestIssueNumber = this.getLatestIssueNumber(previousBuild);
                 if (latestIssueNumber != null) {
                     issue = repo.getIssue(latestIssueNumber);
@@ -207,12 +207,12 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         return issueLabel;
     }
 
-    public boolean isReopenIssue() {
-        return reopenIssue;
+    public boolean isIssueReopen() {
+        return issueReopen;
     }
 
-    public boolean isAppendIssue() {
-        return appendIssue;
+    public boolean isIssueAppend() {
+        return issueAppend;
     }
 
     @Extension

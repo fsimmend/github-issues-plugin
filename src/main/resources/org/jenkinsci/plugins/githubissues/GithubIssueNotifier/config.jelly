@@ -11,13 +11,13 @@
             <f:textbox />
         </f:entry>
         <f:entry title="ReOpen issue" field="issueReopen">
-             <f:checkbox/>
+             <f:checkbox default="true"/>
         </f:entry>
         <f:entry title="Append Failures on next job to existing issue" field="issueAppend">
              <f:checkbox default="true"/>
         </f:entry>
         <f:entry title="Issue Repository" field="issueRepo">
-            <f:textbox default="true"/>
+            <f:textbox/>
         </f:entry>
     </f:section>
 </j:jelly>

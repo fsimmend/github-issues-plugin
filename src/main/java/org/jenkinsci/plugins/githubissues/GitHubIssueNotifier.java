@@ -128,7 +128,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
         } else if ((result == Result.FAILURE || result == Result.UNSTABLE) && existingIssueNumber!=null) {
             // Issue was already created for a previous failure
             logger.format(
-                "GitHub Issue Notifier: Build is still failing and issue #%s already exists. Not sending anything to GitHub issues%n",
+                "GitHub Issue Notifier: Build is still failing and issue #%s already exists.%n",
                     existingIssueNumber
             );
             final GHIssue issue = repo.getIssue(existingIssueNumber);
@@ -139,6 +139,7 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
                         issueBody = this.getDescriptor().getIssueBody();
                     }
                     issue.comment(IssueCreator.formatText(issueBody, run, listener, workspace));
+                    logger.format("GitHub Issue Notifier: Add comment to #%s%n", existingIssueNumber);
                 }
             }
             previousGitHubIssueAction.setBuildResult(result);
@@ -154,11 +155,21 @@ public class GitHubIssueNotifier extends Notifier implements SimpleBuildStep {
                     issue = repo.getIssue(latestIssueNumber);
                     issue.reopen();
                 }
+                logger.format("GitHub Issue Notifier: Build has started failing, reopen issue #%s%n", latestIssueNumber);
             }
             if (issue == null) {
                 issue = IssueCreator.createIssue(run, this, repo, listener, workspace);
+                logger.format("GitHub Issue Notifier: Build has started failing, filed GitHub issue #%s%n", issue.getNumber());
+            } else {
+                if (this.issueAppend) {
+                    String issueBody = this.getIssueBody();
+                    if (StringUtils.isBlank(issueBody)) {
+                        issueBody = this.getDescriptor().getIssueBody();
+                    }
+                    issue.comment(IssueCreator.formatText(issueBody, run, listener, workspace));
+                    logger.format("GitHub Issue Notifier: Add comment to #%s%n", issue.getNumber());
+                }
             }
-            logger.format("GitHub Issue Notifier: Build has started failing, filed GitHub issue #%s%n", issue.getNumber());
             run.addAction(new GitHubIssueAction(issue, result));
         } else if (result == Result.SUCCESS) {
             logger.format("GitHub Issue Notifier: Build was fixed, closing GitHub issue #%s%n", existingIssueNumber);
